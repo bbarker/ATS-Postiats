@@ -158,4 +158,10 @@ end // end of [genes_meanvar]
 
 (* ****** ****** *)
 
+extern
+fun gmeanvar_makeclo(GDMap, GDMap):  
+  genes -<cloref> (double, double)
+
+(* ****** ****** *)
+
 (* end of [falcon_algorithm1.dats] *)

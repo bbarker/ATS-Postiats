@@ -87,6 +87,7 @@ fun gene_make_symbol (symbol): gene
 *)
 absvtype genes_vtype = ptr
 vtypedef genes = genes_vtype
+vtypedef geneslst = List0_vt (genes)
 
 (* ****** ****** *)
 

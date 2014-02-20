@@ -17,6 +17,7 @@ staload "./falcon.sats"
 
 staload "./falcon_genes.dats"
 staload "./falcon_parser.dats"
+staload "./falcon_algorithm1.dats"
 
 (* ****** ****** *)
 
@@ -25,8 +26,9 @@ UN = "prelude/SATS/unsafe.sats"
 
 (* ****** ****** *)
 
-vtypedef
-grcnf = geneslst
+absvtype grcnf
+//vtypedef
+//grcnf = geneslst
 vtypedef 
 grcnflst = List0_vt (grcnf)
 
@@ -34,22 +36,11 @@ grcnflst = List0_vt (grcnf)
 
 extern
 fun grcnf_free (grcnf): void
-//
-implement
-grcnf_free (xs) =
-(
-case+ xs of
-| ~list_vt_nil () => ()
-| ~list_vt_cons (x, xs) => (genes_free (x); grcnf_free (xs))
-) (* end of [grcnf_free] *)
 
 (* ****** ****** *)
 
 extern
 fun grcnf_make_nil(): grcnf
-//
-implement
-grcnf_make_nil() = nil_vt
 
 (* ****** ****** *)
 
@@ -68,28 +59,18 @@ case+ xs of
 
 extern
 fun
+grcnf_minmean_std(!grcnf, GDMap, GDMap): (double, double)
+
+(* ****** ****** *)
+
+extern
+fun
 fprint_grcnf (FILEref, !grcnf): void 
 //
 extern
 fun
 fprint_grcnflst (FILEref, !grcnflst): void  
-
-(* ****** ****** *)
-
-local
-//
-implement
-fprint_ref<genes>
-  (out, xs) = fprint_genes (out, xs)
-//
-in(*in-of-local*)
-//
-implement
-fprint_grcnf (out, cnf) =
-  fprint_list_vt_sep<genes> (out, cnf, "; ")
-//
-end // end of [local]
-  
+ 
 (* ****** ****** *)
 
 implement
@@ -134,6 +115,50 @@ fun
 grcnf_conj
   (cnfs: grcnflst): geneslst
 //
+extern
+fun
+grcnf_disj
+  (cnfs: grcnflst): geneslst
+//
+
+(* ****** ****** *)
+
+local
+
+assume
+grcnf = geneslst
+
+in (* in-of-local *)
+
+implement
+grcnf_free (xs) =
+(
+case+ xs of
+| ~list_vt_nil () => ()
+| ~list_vt_cons (x, xs) => (genes_free (x); grcnf_free (xs))
+) (* end of [grcnf_free] *)
+
+implement
+grcnf_make_nil() = nil_vt
+
+(* ****** ****** *)
+
+local
+//
+implement
+fprint_ref<genes>
+  (out, xs) = fprint_genes (out, xs)
+//
+in(*in-of-local*)
+//
+implement
+fprint_grcnf (out, cnf) =
+  fprint_list_vt_sep<genes> (out, cnf, "; ")
+//
+end // end of [local]
+
+(* ****** ****** *)
+
 implement
 grcnf_conj (cnfs) = let
 //
@@ -165,11 +190,6 @@ case+ cnfs of
 end // end of [grcnf_conj]
 
 (* ****** ****** *)
-//
-extern
-fun
-grcnf_disj
-  (cnfs: grcnflst): geneslst
 //
 implement
 grcnf_disj (cnfs) = let
@@ -281,7 +301,7 @@ fun auxsub
     end (* end of [list_vt_cons] *)
 ) (* end of [auxsub] *)
 
-in (* in-of-local *)
+in (* in-of-local (geneslst_cons)*)
 
 implement
 geneslst_cons
@@ -381,11 +401,28 @@ case+ gx of
 end // end of [grexp_cnfize]
 
 (* ****** ****** *)
+
+implement
+grcnf_minmean_std(cnf, emap, smap): (double, double) = let
+  val gDMapclo = gmeanvar_makeclo(emap, smap)
+  //vtypedef twodbl_listvt = [n:nat] (list_vt(double, n), list_vt(double, n))
+  val eval_svals = list_map_vt_cloref<genes><(double, double)> (cnf, gDMapclo)
+  
+  val () = list_vt_free(eval_svals)
+in 
+  //(emin, sqrt(s_emin))
+  (0.0, 0.0)
+end
+
+(* ****** ****** *)
+
 //
 implement
 grexplst_cnfize (gxs) =
   list_map_fun<grexp><grcnf> (gxs, grexp_cnfize)
 //
 (* ****** ****** *)
+
+end (* end-of-local *)
 
 (* end of [falcon_cnfize.dats] *)
