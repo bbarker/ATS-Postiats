@@ -408,33 +408,22 @@ end // end of [grexp_cnfize]
 implement
 grcnf_minmean_std(cnf, emap, smap): expvar = let
   val gDMapclo = gmeanvar_makeclo(emap, smap)
-  vtypedef list_vt_2dbl = [n:nat] list_vt(expvar, n)
   val eval_svals = list_map_vt_cloref<genes><expvar> (cnf, gDMapclo)
   // 
-  
-  fun min_first_loop(xs: !list_vt_2dbl, x_first: double): expvar = let
-    val () = ()   
-  in  // in of [min_first_loop]
-    (NAN, NAN)
-  end // end of [min_first_loop]
-  
-  //
-  val e_first: double = case+ eval_svals of
-    | list_vt_nil () => NAN
-    | @list_vt_cons(x, xs) => let
-      val retval = x.0 
-      prval () = fold@{expvar}eval_svals
-    in
-      retval
-    end
-  //  
-  val emin_s = 
+  fun min_first_loop
   (
-  if $M.isnan(e_first) = 0 then
-    min_first_loop(eval_svals, e_first) 
-  else
-    (NAN, NAN)
-  ): (double, double)
+    xs: !listvt_expvar, current_min: expvar
+  ): expvar = case+ xs of
+  | list_vt_nil () => (NAN, NAN)
+  | list_vt_cons(x, xs1) => let
+      val current_min = if current_min.0 < x.0 then
+        current_min
+      else
+        x
+    in
+      min_first_loop(xs1, current_min)
+    end
+  val emin_s = min_first_loop(eval_svals, (INF, NAN))
   val () = list_vt_free(eval_svals)
 in 
   (emin_s.0, $M.sqrt(emin_s.1))
