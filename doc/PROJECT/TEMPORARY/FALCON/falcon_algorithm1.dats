@@ -165,7 +165,7 @@ fun gmeanvar_makeclo(GDMap, GDMap):
 implement
 gmeanvar_makeclo(emap, smap) =
   lam(xs) => genes_meanvar(xs, emap, smap)
-  
+
 (* ****** ****** *)
 
 (* end of [falcon_algorithm1.dats] *)

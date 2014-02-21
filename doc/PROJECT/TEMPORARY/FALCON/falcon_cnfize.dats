@@ -62,7 +62,15 @@ case+ xs of
 
 extern
 fun
-grcnf_minmean_std(cnf: !grcnf, emap: GDMap, smap: GDMap): (double, double)
+grcnf_minmean_std(
+  cnf: !grcnf, GDMapclo: (!genes) -<cloref1> expvar
+): expvar
+//
+extern
+fun
+grcnflst_minmean_std(
+  cnfs: !grcnflst, GDMapclo: (!genes) -<cloref1> expvar
+): List0_vt(expvar)
 
 (* ****** ****** *)
 
@@ -403,12 +411,12 @@ case+ gx of
 //
 end // end of [grexp_cnfize]
 
+
 (* ****** ****** *)
 
 implement
-grcnf_minmean_std(cnf, emap, smap): expvar = let
-  val gDMapclo = gmeanvar_makeclo(emap, smap)
-  val eval_svals = list_map_vt_cloref<genes><expvar> (cnf, gDMapclo)
+grcnf_minmean_std(cnf, GDMapclo): expvar = let
+  val eval_svals = list_vt_map_cloref<genes><expvar> (cnf, GDMapclo)
   // 
   fun min_first_loop
   (
@@ -423,21 +431,29 @@ grcnf_minmean_std(cnf, emap, smap): expvar = let
     in
       min_first_loop(xs1, current_min)
     end
+  // end of [min_first_loop]
   val emin_s = min_first_loop(eval_svals, (INF, NAN))
   val () = list_vt_free(eval_svals)
 in 
   (emin_s.0, $M.sqrt(emin_s.1))
 end
 
+end (* end-of-local *)
+
 (* ****** ****** *)
 
-//
 implement
 grexplst_cnfize (gxs) =
   list_map_fun<grexp><grcnf> (gxs, grexp_cnfize)
-//
+
 (* ****** ****** *)
 
-end (* end-of-local *)
+implement
+grcnflst_minmean_std(cnfs, GDMapclo) = 
+  list_vt_map_fun<grcnf><expvar> (
+    cnfs, 
+    lam(cnf) => grcnf_minmean_std(cnf, GDMapclo)
+  )
+
 
 (* end of [falcon_cnfize.dats] *)
