@@ -80,7 +80,7 @@ end // end of [genelst_min]
 
 extern
 fun genes_meanvar
-  (xs: !genes, emap: GDMap, smap: GDMap): (double, double)
+  (xs: !genes, emap: GDMap, smap: GDMap): expvar
 // end of [genelst_meanvar]
 
 implement
@@ -160,7 +160,7 @@ end // end of [genes_meanvar]
 
 extern
 fun gmeanvar_makeclo(GDMap, GDMap):  
-  (!genes) -<cloref1> (double, double)
+  (!genes) -<cloref1> expvar
 //
 implement
 gmeanvar_makeclo(emap, smap) =

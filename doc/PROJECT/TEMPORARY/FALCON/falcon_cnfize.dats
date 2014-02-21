@@ -21,11 +21,11 @@ staload "./falcon_algorithm1.dats"
 
 (* ****** ****** *)
 
-staload  
-"libc/SATS/math.sats"
-
 staload
 UN = "prelude/SATS/unsafe.sats"
+
+staload 
+M = "libc/SATS/math.sats"
 
 (* ****** ****** *)
 
@@ -406,39 +406,38 @@ end // end of [grexp_cnfize]
 (* ****** ****** *)
 
 implement
-grcnf_minmean_std(cnf, emap, smap): (double, double) = let
+grcnf_minmean_std(cnf, emap, smap): expvar = let
   val gDMapclo = gmeanvar_makeclo(emap, smap)
-  vtypedef list_vt_2dbl = [n:nat] list_vt((double, double), n)
-  val eval_svals = list_map_vt_cloref<genes><(double, double)> (cnf, gDMapclo)
+  vtypedef list_vt_2dbl = [n:nat] list_vt(expvar, n)
+  val eval_svals = list_map_vt_cloref<genes><expvar> (cnf, gDMapclo)
   // 
   
-  fun min_first_loop(xs: !list_vt_2dbl, x_first: double): (double, double) = let
+  fun min_first_loop(xs: !list_vt_2dbl, x_first: double): expvar = let
     val () = ()   
-  in  // inf o [min_first_loop]
+  in  // in of [min_first_loop]
     (NAN, NAN)
   end // end of [min_first_loop]
   
-  val not_nil = list_vt_is_nil(eval_svals)
   //
   val e_first: double = case+ eval_svals of
     | list_vt_nil () => NAN
     | @list_vt_cons(x, xs) => let
       val retval = x.0 
-      prval () = fold@{(double, double)}eval_svals
+      prval () = fold@{expvar}eval_svals
     in
       retval
     end
   //  
   val emin_s = 
   (
-  if not_nil then
-    min_first_loop(eval_svals, e_first)
+  if $M.isnan(e_first) = 0 then
+    min_first_loop(eval_svals, e_first) 
   else
     (NAN, NAN)
   ): (double, double)
   val () = list_vt_free(eval_svals)
 in 
-  (emin_s.0, sqrt(emin_s.1))
+  (emin_s.0, $M.sqrt(emin_s.1))
 end
 
 (* ****** ****** *)

@@ -64,6 +64,7 @@ overload fprint with fprint_position
 fun position_get_now (): position
 
 (* ****** ****** *)
+typedef expvar = (double, double)
 //
 abstype gene_type = ptr
 typedef gene = gene_type
