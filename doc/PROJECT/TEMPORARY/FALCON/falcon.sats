@@ -57,6 +57,10 @@ overload fprint with fprint_position
 //
 (* ****** ****** *)
 
+#define NAN 0.0/0.0
+
+(* ****** ****** *)
+
 fun position_get_now (): position
 
 (* ****** ****** *)

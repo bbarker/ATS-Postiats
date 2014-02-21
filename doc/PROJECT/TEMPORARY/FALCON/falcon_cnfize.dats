@@ -21,6 +21,9 @@ staload "./falcon_algorithm1.dats"
 
 (* ****** ****** *)
 
+staload  
+"libc/SATS/math.sats"
+
 staload
 UN = "prelude/SATS/unsafe.sats"
 
@@ -59,7 +62,7 @@ case+ xs of
 
 extern
 fun
-grcnf_minmean_std(!grcnf, GDMap, GDMap): (double, double)
+grcnf_minmean_std(cnf: !grcnf, emap: GDMap, smap: GDMap): (double, double)
 
 (* ****** ****** *)
 
@@ -405,13 +408,37 @@ end // end of [grexp_cnfize]
 implement
 grcnf_minmean_std(cnf, emap, smap): (double, double) = let
   val gDMapclo = gmeanvar_makeclo(emap, smap)
-  //vtypedef twodbl_listvt = [n:nat] (list_vt(double, n), list_vt(double, n))
+  vtypedef list_vt_2dbl = [n:nat] list_vt((double, double), n)
   val eval_svals = list_map_vt_cloref<genes><(double, double)> (cnf, gDMapclo)
+  // 
   
+  fun min_first_loop(xs: !list_vt_2dbl, x_first: double): (double, double) = let
+    val () = ()   
+  in  // inf o [min_first_loop]
+    (NAN, NAN)
+  end // end of [min_first_loop]
+  
+  val not_nil = list_vt_is_nil(eval_svals)
+  //
+  val e_first: double = case+ eval_svals of
+    | list_vt_nil () => NAN
+    | @list_vt_cons(x, xs) => let
+      val retval = x.0 
+      prval () = fold@{(double, double)}eval_svals
+    in
+      retval
+    end
+  //  
+  val emin_s = 
+  (
+  if not_nil then
+    min_first_loop(eval_svals, e_first)
+  else
+    (NAN, NAN)
+  ): (double, double)
   val () = list_vt_free(eval_svals)
 in 
-  //(emin, sqrt(s_emin))
-  (0.0, 0.0)
+  (emin_s.0, sqrt(emin_s.1))
 end
 
 (* ****** ****** *)
