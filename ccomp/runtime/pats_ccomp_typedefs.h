@@ -170,6 +170,10 @@ struct{char _[0XFFFF];} atstype_var[0] ;
 
 /* ****** ****** */
 
+#define atstyclo_toplevel struct{ void *cfun; }
+
+/* ****** ****** */
+
 #define atsrefarg0_type(hit) hit
 #define atsrefarg1_type(hit) atstype_ref
 

@@ -592,9 +592,9 @@ val () = println! ("A * B = ", dotprod (A, B)) // A * B = 6.0
 } (* end of [main0] *)
 ')
 
-The at-view associated with the variable A is #stacode("@[double][3]@A"),
+The at-view associated with the variable A is #stacode("(@[double][3])@A"),
 where A also refers to the address of the variable A. Similarly, the
-at-view associated with the variable B is #stacode("@[double][3]@B").
+at-view associated with the variable B is #stacode("(@[double][3])@B").
 
 For the sake of completeness, I mention the syntax for uninitialized arrays
 as follows: Given a type T and an integer N, the syntax
@@ -608,6 +608,33 @@ of type T.
 Note that allocating large arrays in the call frame of a function may not
 be a good practice as doing so can greatly increase the likelihood of
 stack-overflow at run-time.
+
+')
+
+#para('\
+
+It is also allowed in ATS to allocate a closure in the call frame of a
+function. For instance, the following code implements a function named
+#dyncode("foo") that stores a flat closure-value in a stack-allocated
+variable named #dyncode("bar"):
+
+#atscode('\
+fun foo
+(
+  x: int, y: int
+) : void = let
+//
+var bar = lam@ (): int => x + y
+//
+in
+  println! ("foo(", x, ", ", y, ") = ", bar())
+end // end of [foo]
+')
+
+Note that the special keyword #keycode("lam@") should be used to form a
+flat closure-value. In a setting where dynamic memory allocation is not
+allowed, stack-allocated closures can play a pivotal role in supporting
+programming with higher-order functions.
 
 ')
 
