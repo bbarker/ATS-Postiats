@@ -65,7 +65,8 @@ macdef INF = $extval (double, "INFINITY")
 fun position_get_now (): position
 
 (* ****** ****** *)
-typedef expvar = (double, double)
+abstype expvar_type = ptr
+typedef expvar = expvar_type
 vtypedef listvt_expvar = [n:nat] list_vt(expvar, n)
 //
 abstype gene_type = ptr

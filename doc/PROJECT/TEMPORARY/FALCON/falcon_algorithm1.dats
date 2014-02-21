@@ -97,6 +97,20 @@ fun genes_meanvar
   (xs: !genes, emap: GDMap, smap: GDMap): expvar
 // end of [genelst_meanvar]
 
+(* ****** ****** *)
+
+local
+
+assume
+grcnf = geneslst
+//
+assume
+expvar_type = (double, double) // Not sure how to do this
+
+in (* in-of-local *)
+
+(* ****** ****** *)
+
 implement
 genes_meanvar
   (xs, emap, smap) = let
@@ -181,13 +195,6 @@ gmeanvar_makeclo(emap, smap) =
   lam(xs) => genes_meanvar(xs, emap, smap)
 
 (* ****** ****** *)
-
-local
-
-assume
-grcnf = geneslst
-
-in (* in-of-local *)
 
 implement
 grcnf_minmean_std(cnf, GDMapclo): expvar = let
