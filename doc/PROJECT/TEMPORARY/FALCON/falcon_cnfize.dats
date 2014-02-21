@@ -17,7 +17,6 @@ staload "./falcon.sats"
 
 staload "./falcon_genes.dats"
 staload "./falcon_parser.dats"
-staload "./falcon_algorithm1.dats"
 
 (* ****** ****** *)
 
@@ -26,14 +25,6 @@ UN = "prelude/SATS/unsafe.sats"
 
 staload 
 M = "libc/SATS/math.sats"
-
-(* ****** ****** *)
-
-absvtype grcnf
-//vtypedef
-//grcnf = geneslst
-vtypedef 
-grcnflst = List0_vt (grcnf)
 
 (* ****** ****** *)
 
@@ -57,20 +48,6 @@ case+ xs of
 | ~list_vt_nil () => ()
 | ~list_vt_cons (x, xs) => (grcnf_free (x); grcnflst_free (xs))
 ) (* end of [grcnflst_free] *)
-
-(* ****** ****** *)
-
-extern
-fun
-grcnf_minmean_std(
-  cnf: !grcnf, GDMapclo: (!genes) -<cloref1> expvar
-): expvar
-//
-extern
-fun
-grcnflst_minmean_std(
-  cnfs: !grcnflst, GDMapclo: (!genes) -<cloref1> expvar
-): List0_vt(expvar)
 
 (* ****** ****** *)
 
@@ -411,33 +388,6 @@ case+ gx of
 //
 end // end of [grexp_cnfize]
 
-
-(* ****** ****** *)
-
-implement
-grcnf_minmean_std(cnf, GDMapclo): expvar = let
-  val eval_svals = list_vt_map_cloref<genes><expvar> (cnf, GDMapclo)
-  // 
-  fun min_first_loop
-  (
-    xs: !listvt_expvar, current_min: expvar
-  ): expvar = case+ xs of
-  | list_vt_nil () => (NAN, NAN)
-  | list_vt_cons(x, xs1) => let
-      val current_min = if current_min.0 < x.0 then
-        current_min
-      else
-        x
-    in
-      min_first_loop(xs1, current_min)
-    end
-  // end of [min_first_loop]
-  val emin_s = min_first_loop(eval_svals, (INF, NAN))
-  val () = list_vt_free(eval_svals)
-in 
-  (emin_s.0, $M.sqrt(emin_s.1))
-end
-
 end (* end-of-local *)
 
 (* ****** ****** *)
@@ -445,15 +395,6 @@ end (* end-of-local *)
 implement
 grexplst_cnfize (gxs) =
   list_map_fun<grexp><grcnf> (gxs, grexp_cnfize)
-
-(* ****** ****** *)
-
-implement
-grcnflst_minmean_std(cnfs, GDMapclo) = 
-  list_vt_map_fun<grcnf><expvar> (
-    cnfs, 
-    lam(cnf) => grcnf_minmean_std(cnf, GDMapclo)
-  )
 
 
 (* end of [falcon_cnfize.dats] *)

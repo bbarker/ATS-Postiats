@@ -98,6 +98,12 @@ vtypedef geneslst = List0_vt (genes)
 
 (* ****** ****** *)
 
+absvtype grcnf = ptr
+vtypedef 
+grcnflst = List0_vt (grcnf)
+
+(* ****** ****** *)
+
 fun genes_sing (gene): genes
 
 (* ****** ****** *)
