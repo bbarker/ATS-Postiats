@@ -358,6 +358,11 @@ The ATS/Postiats C-Boostrapping\
 
 (* ****** ****** *)
 
+#packfilename("pats_dynexp2_mapgen_dats.c")
+
+(* ****** ****** *)
+
+#packfilename("pats_synent2_jsonize_sats.c")
 #packfilename("pats_synent2_jsonize_dats.c")
 
 (* ****** ****** *)
@@ -522,6 +527,8 @@ The ATS/Postiats C-Boostrapping\
 #packfilename("ccomp/runtime/ats_prelude_ngc.c")
 #packfilename("ccomp/runtime/ats_prelude_gcats.c")
 #packfilename("ccomp/runtime/ats_prelude_gcbdw.c")
+//
+#packfilename("ccomp/runtime/gcats1_all.cats")
 //
 (* ****** ****** *)
 

@@ -47,6 +47,7 @@ thePageRBodyLHeader_Community()
 {
   echo "<ul name=\"Community\">\n";
   echo "<li><a href=\"#ATS_wikipage\">Wiki for ATS users</a></li>\n";
+  echo "<li><a href=\"#ATS_subreddit\">ATS news links at reddit</a></li>\n";
   echo "<li><a href=\"#ATS_IRC_channel\">IRC channel for ATS users</a></li>\n";
   echo "<li><a href=\"#ATS_QandA_forum\">Q&amp;A forum for ATS users</a></li>\n";
   echo "<li><a href=\"#ATS_devel_forum\">Discussion forum for ATS developers</a></li>\n";
@@ -92,6 +93,7 @@ function
 thePageRBodyLHeader_Resources()
 {
   echo "<ul name=\"Resources\">\n";
+  echo "<li><a href=\"#ATS-Toolkit\">ATS Toolkit</a></li>\n";
   echo "</ul>\n";
   return;
 } /* end of [thePageRBodyLHeader_Resources] */
