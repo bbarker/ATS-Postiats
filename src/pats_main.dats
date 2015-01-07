@@ -6,7 +6,7 @@
 
 (*
 ** ATS/Postiats - Unleashing the Potential of Types!
-** Copyright (C) 2011-2014 Hongwei Xi, ATS Trustful Software, Inc.
+** Copyright (C) 2011-2015 Hongwei Xi, ATS Trustful Software, Inc.
 ** All rights reserved
 **
 ** ATS is free software;  you can  redistribute it and/or modify it under
@@ -470,11 +470,12 @@ HX: VERSION-0.1.2 released on Friday, August 29, 2014
 HX: VERSION-0.1.3 released on Monday, September 29, 2014
 HX: VERSION-0.1.4 released on Thursday, October 23, 2014
 HX: VERSION-0.1.5 released on Thursday, November 20, 2014
+HX: VERSION-0.1.6 released on Tuesday, January 6, 2015
 //
 *)
 #define PATS_MAJOR_VERSION 0
 #define PATS_MINOR_VERSION 1
-#define PATS_MICRO_VERSION 6
+#define PATS_MICRO_VERSION 7
 (*
 //
 // HX-2011-04-27: this is supported in Postiats:
@@ -494,7 +495,7 @@ implement
 patsopt_version (out) =
 {
   val () = fprintf (out
-, "ATS/Postiats version %i.%i.%i with Copyright (c) 2011-2014 Hongwei Xi\n"
+, "ATS/Postiats version %i.%i.%i with Copyright (c) 2011-2015 Hongwei Xi\n"
 , @(PATS_MAJOR_VERSION, PATS_MINOR_VERSION, PATS_MICRO_VERSION)
   ) // end of [fprintf]
 } (* end of [patsopt_version] *)
@@ -1016,6 +1017,10 @@ extern
 fun
 do_transfinal
   (state: &cmdstate, given: string, d0cs: d0eclist): void
+extern
+fun
+do_transfinal2
+  (state: &cmdstate, given: string, d0cs: d0eclist): void
 //
 (* ****** ****** *)
 
@@ -1026,6 +1031,7 @@ do_trans1
 val d1cs =
   $TRANS1.d0eclist_tr_errck (d0cs)
 // end of [val]
+//
 val () = $TRANS1.trans1_finalize ()
 //
 val () =
@@ -1167,14 +1173,134 @@ case+ 0 of
   end // end of [when ...]
 | _ => let
     val hids = do_trans1234 (state, given, d0cs)
-    val out = outchan_get_filr (state.outchan)
+    val outfil = outchan_get_filr (state.outchan)
     val flag = waitkind_get_stadyn (state.waitkind)
-    val () = $CCOMP.ccomp_main (out, flag, state.infil, hids)
+    val ((*void*)) = $CCOMP.ccomp_main (outfil, flag, state.infil, hids)
   in
     // nothing
   end // end of [_]
 //
 ) (* end of [do_transfinal] *)
+
+(* ****** ****** *)
+
+local
+
+fun
+auxexn
+(
+  p0: ptr
+, given: string, d0cs: d0eclist, exn: exn
+) : void = let
+//
+fun
+auxerr
+(
+  outfil: FILEref, given: string, msg: string
+) : void = let
+val
+cmtl =
+"/* ****** ****** */\n"
+//
+in
+//
+fprintf
+(
+  outfil
+, "%s//\n#error(PATSOPT_ERROR_(patsopt(%s): %s))\n//\n%s", @(cmtl, given, msg, cmtl)
+) // end of [fprintf]
+//
+end (* end of [aux] *)
+//
+val
+(pf, fpf | p) =
+$UN.ptr0_vtake{cmdstate}(p0)
+//
+val outfil = outchan_get_filr (p->outchan)
+//
+prval ((*addback*)) = fpf (pf)
+//
+in
+//
+case+ exn of
+//
+| $ERR.PATSOPT_FIXITY_EXN() =>
+  (
+    fold@(exn);
+    auxerr (outfil, given, "fixity-errors");
+    $raise(exn);
+  )
+//
+| $ERR.PATSOPT_TRANS1_EXN() =>
+  (
+    fold@(exn);
+    auxerr (outfil, given, "trans1-errors");
+    $raise(exn);
+  )
+//
+| $ERR.PATSOPT_TRANS2_EXN() =>
+  (
+    fold@(exn);
+    auxerr (outfil, given, "trans2-errors");
+    $raise(exn);
+  )
+//
+| $ERR.PATSOPT_TRANS3_EXN() =>
+  (
+    fold@(exn);
+    auxerr (outfil, given, "trans3-errors");
+    $raise(exn);
+  )
+//
+| $ERR.PATSOPT_TRANS4_EXN() =>
+  (
+    fold@(exn);
+    auxerr (outfil, given, "trans4-errors");
+    $raise(exn);
+  )
+//
+(*
+| $ERR.PATSOPT_FILENONE_EXN(fname) =>
+  (
+    fold@(exn);  
+    fprintf (outfil, "/* ****** ****** */\n//\n", @());
+    fprintf (outfil, "#error(patsopt(%s): [%s] cannot be accessed)\n", @(given, fname));
+    fprintf (outfil, "//\n/* ****** ****** */\n", @());
+    $raise(exn);
+  )
+*)
+//
+| exn => $raise(exn)
+//
+end // end of [auxexn]
+
+in (* in-of-local*)
+
+implement
+do_transfinal2
+  (state, given, d0cs) = let
+//
+val p0 = &state
+//
+in
+//
+try let
+//
+val
+(pf, fpf | p) =
+$UN.ptr0_vtake{cmdstate}(p0)
+//
+val () = do_transfinal(!p, given, d0cs)
+//
+prval ((*addback*)) = fpf (pf)
+//
+in
+  // nothing
+end with exn => auxexn (p0, given, d0cs, exn)
+//
+end // end of [do_transfinal2]
+
+end // end of [local]
 
 (* ****** ****** *)
 
@@ -1187,9 +1313,11 @@ process_cmdline
 in
 //
 case+ arglst of
+//
 | ~list_vt_cons
     (arg, arglst) =>
     process_cmdline2 (state, arg, arglst)
+//
 | ~list_vt_nil ()
     when state.ninpfile = 0 => let
     val stadyn =
@@ -1220,15 +1348,20 @@ case+ arglst of
 //
         val given = "<STDIN>"
 //
-        val () = if isdepgen then do_depgen (state, given, d0cs)
-        val () = if istaggen then do_taggen (state, given, d0cs)
+        val () =
+          if isdepgen then do_depgen (state, given, d0cs)
+        val () =
+          if istaggen then do_taggen (state, given, d0cs)
 //
-        val () = if istrans then do_transfinal (state, given, d0cs)
+        val () =
+          if istrans then do_transfinal2 (state, given, d0cs)
+        // end of [val]
 //
       } // end of [_ when ...]
     | _ => ()
   end // end of [list_vt_nil when ...]
-| ~list_vt_nil () => ()
+//
+| ~list_vt_nil ((*void*)) => ()
 //
 end // end of [process_cmdline]
 
@@ -1280,10 +1413,14 @@ case+ arg of
         val istaggen = state.taggen > 0
         val () = if istaggen then istrans := false
 //
-        val () = if isdepgen then do_depgen (state, given, d0cs)
-        val () = if istaggen then do_taggen (state, given, d0cs)
+        val () =
+          if isdepgen then do_depgen (state, given, d0cs)
+        val () =
+          if istaggen then do_taggen (state, given, d0cs)
 //
-        val () = if istrans then do_transfinal (state, given, d0cs)
+        val () =
+          if istrans then do_transfinal2 (state, given, d0cs)
+        // end of [val]
 //
       in
         process_cmdline (state, arglst)
@@ -1407,7 +1544,7 @@ case+ key of
 //
 | "-v" => patsopt_version (stdout_ref)
 //
-| _ => comarg_warning (key) // unrecognized key
+| _ (*rest*) => comarg_warning (key) // unrecognized key
 //
 ) : void // end of [val]
 //
@@ -1502,6 +1639,8 @@ patsopt_main
   {n:int | n > 0}
   (argc: int(n), argc: &(@[string][n])): void
 //
+(* ****** ****** *)
+
 implement
 patsopt_main
   (argc, argv) = {
@@ -1601,11 +1740,12 @@ implement
 main (argc, argv) =
 (
 //
-if argc >= 2
-  then patsopt_main (argc, argv)
-  else prerrln! ("Hello from ATS2(ATS/Postiats)!")
+if
+(argc >= 2)
+then patsopt_main (argc, argv)
+else prerrln! ("Hello from ATS2(ATS/Postiats)!")
 // end of [if]
-)
+) (* end of [main] *)
 //
 (* ****** ****** *)
 

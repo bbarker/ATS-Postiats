@@ -130,6 +130,10 @@ The ATSLIB/libats library\
 
 (* ****** ****** *)
 
+#packfilename("SATS/bitvec.sats")
+
+(* ****** ****** *)
+
 #packfilename("SATS/stkarray.sats")
 #packfilename("SATS/deqarray.sats")
 #packfilename("SATS/dynarray.sats")
@@ -263,6 +267,10 @@ The ATSLIB/libats library\
 
 (* ****** ****** *)
 
+#packfilename("DATS/bitvec.dats")
+
+(* ****** ****** *)
+
 #packfilename("DATS/stkarray.dats")
 #packfilename("DATS/deqarray.dats")
 #packfilename("DATS/dynarray.dats")
@@ -377,7 +385,7 @@ The ATSLIB/libats library\
 (* ****** ****** *)
 
 %{
-implement main () = ()
+implement main (argc, argv) = ()
 %}
 
 (* ****** ****** *)
